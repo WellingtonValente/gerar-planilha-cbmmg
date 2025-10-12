@@ -3,133 +3,84 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gerar Planilha Excel (.xlsx) — CBMMG</title>
+  <title>Gerar Planilha Excel (.xlsx)</title>
+  <!-- CDN principal -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js"></script>
+  <!-- Fallback: se o CDN acima falhar -->
+  <script>
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.includes('XLSX')) {
+        var alt = document.createElement('script');
+        alt.src = 'https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js';
+        document.head.appendChild(alt);
+      }
+    });
+  </script>
   <style>
-    :root { --bg:#0f172a; --fg:#e5e7eb; --muted:#94a3b8; --brand:#2563eb; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--fg); margin: 0; }
-    .wrap { max-width: 920px; margin: 40px auto; padding: 0 20px; }
-    .card { background: #0b1220; border: 1px solid #1f2a44; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
-    h1 { margin: 0 0 6px; font-size: 1.6rem; }
-    p.muted { color: var(--muted); margin: 0 0 14px; }
-    textarea { width: 100%; min-height: 260px; border-radius: 12px; border: 1px solid #1f2a44; background: #0a1020; color: var(--fg); padding: 12px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-    .row input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #1f2a44; background: #0a1020; color: var(--fg); }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-    button { padding: 10px 16px; border-radius: 10px; border: 1px solid #1f2a44; background: #111a33; color: var(--fg); cursor: pointer; }
-    button.primary { background: var(--brand); border-color: var(--brand); }
-    button:hover { filter: brightness(1.05); }
-    .status { margin-top: 10px; font-weight: 600; }
-    .ok { color: #22c55e; }
-    .err { color: #ef4444; }
-    .footer { margin-top: 18px; color: var(--muted); font-size: .9rem; }
-    a { color: #93c5fd; }
-    .tip { background: #0a1329; border: 1px dashed #1f2a44; border-radius: 12px; padding: 12px; margin-top: 12px; color: var(--muted); }
+    body {font-family: Arial, sans-serif; background: #0f172a; color: #e5e7eb; margin: 0; padding: 30px; max-width: 900px; margin-left:auto; margin-right:auto;}
+    h1 {color: #93c5fd;}
+    textarea {width: 100%; height: 260px; margin-top: 10px; border-radius: 10px; border: 1px solid #1e293b; background: #1e293b; color: #e5e7eb; padding: 10px; font-family: monospace;}
+    input {background: #1e293b; border: 1px solid #1e293b; color: #e5e7eb; padding: 8px; border-radius: 6px;}
+    button {margin-top: 15px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;}
+    .primary {background: #2563eb; color: white;}
+    .secondary {background: #334155; color: white;}
+    .status {margin-top: 10px; font-weight: bold;}
+    .ok {color: #22c55e;}
+    .err {color: #ef4444;}
+    .tip {margin-top: 15px; color: #94a3b8; font-size: 0.9rem;}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Gerar Planilha Excel (.xlsx)</h1>
-      <p class="muted">Cole abaixo o conteúdo <b>CSV</b> ou <b>JSON</b> que seu GPT forneceu. Tudo acontece no seu navegador — nenhum dado é enviado a servidores.</p>
-
-      <label for="data" class="muted">Dados (CSV ou JSON)</label>
-      <textarea id="data" placeholder='Exemplo CSV:
-empresa,cidade,ocupacao
+  <h1>Gerar Planilha Excel (.xlsx)</h1>
+  <p>Cole abaixo o conteúdo <b>CSV</b> ou <b>JSON</b> que o GPT forneceu.</p>
+  <textarea id="data" placeholder="empresa,cidade,ocupacao
 Loja Exemplo,BH,Comercial
-
-Exemplo JSON:
-[{"empresa":"Loja Exemplo","cidade":"BH","ocupacao":"Comercial"}]
-'></textarea>
-
-      <div class="row">
-        <div>
-          <label class="muted" for="sheet">Nome da aba</label>
-          <input id="sheet" value="Planilha" />
-        </div>
-        <div>
-          <label class="muted" for="filename">Nome do arquivo (.xlsx)</label>
-          <input id="filename" value="planilha_cbmmg.xlsx" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="generate">Gerar .xlsx</button>
-        <button id="sampleCsv">Exemplo CSV</button>
-        <button id="sampleJson">Exemplo JSON</button>
-        <button id="clear">Limpar</button>
-      </div>
-
-      <div id="status" class="status muted"></div>
-
-      <div class="tip">
-        Dicas: Se usar CSV, a primeira linha deve ser o cabeçalho. Evite vírgulas dentro das células
-        (ou troque o separador por ponto e vírgula e ajuste o parse, se necessário).
-      </div>
-
-      <div class="footer">
-        Feito para dar suporte a usuários sem ChatGPT Plus. | Código livre para uso.
-      </div>
-    </div>
+Mercado Central,BH,Serviços"></textarea><br>
+  <label>Nome da aba: <input id="sheet" value="Planilha" /></label>
+  <label> Nome do arquivo: <input id="filename" value="planilha_cbmmg.xlsx" /></label><br>
+  <button class="primary" onclick="gerar()">Gerar .xlsx</button>
+  <button class="secondary" onclick="amostraCSV()">Exemplo CSV</button>
+  <button class="secondary" onclick="amostraJSON()">Exemplo JSON</button>
+  <p id="status" class="status"></p>
+  <div class="tip">
+    Dica: Se usar CSV, a primeira linha deve ser o cabeçalho. Evite vírgulas dentro das células. Nenhum dado é enviado a servidores.
   </div>
-
   <script>
-    function msg(text, ok=true) {
-      const el = document.getElementById("status");
-      el.className = "status " + (ok ? "ok" : "err");
-      el.textContent = text;
+    function msg(t, ok=true){const el=document.getElementById('status');el.className='status '+(ok?'ok':'err');el.textContent=t;}
+    function amostraCSV(){
+      document.getElementById('data').value='empresa,cidade,ocupacao\nLoja Exemplo,BH,Comercial\nMercado Central,BH,Serviços';
+      msg('Exemplo CSV carregado');
     }
-
-    function parseInput(txt) {
-      // Tenta JSON (array de objetos)
-      try {
-        const obj = JSON.parse(txt);
-        if (Array.isArray(obj)) return obj;
-      } catch (_) {}
-      // CSV simples -> array de objetos
-      const lines = txt.trim().split(/\r?\n/).filter(Boolean);
-      if (lines.length < 2) throw new Error("Conteúdo inválido. Informe JSON (lista de objetos) ou CSV (com cabeçalho).");
-      const headers = lines[0].split(",").map(h => h.trim());
-      return lines.slice(1).map(line => {
-        const cols = line.split(",");
-        const o = {};
-        headers.forEach((h,i)=> o[h] = (cols[i] ?? "").trim());
-        return o;
-      });
+    function amostraJSON(){
+      document.getElementById('data').value='[{"empresa":"Loja Exemplo","cidade":"BH","ocupacao":"Comercial"},{"empresa":"Mercado Central","cidade":"BH","ocupacao":"Serviços"}]';
+      msg('Exemplo JSON carregado');
     }
-
-    document.getElementById("sampleCsv").onclick = () => {
-      document.getElementById("data").value = "empresa,cidade,ocupacao\nLoja Exemplo,BH,Comercial\nMercado Central,BH,Serviços";
-      msg("Exemplo CSV carregado.");
-    };
-    document.getElementById("sampleJson").onclick = () => {
-      document.getElementById("data").value = JSON.stringify(
-        [{empresa:"Loja Exemplo",cidade:"BH",ocupacao:"Comercial"}], null, 2
-      );
-      msg("Exemplo JSON carregado.");
-    };
-    document.getElementById("clear").onclick = () => {
-      document.getElementById("data").value = "";
-      msg("Área limpa.");
-    };
-
-    document.getElementById("generate").onclick = () => {
-      const raw = document.getElementById("data").value.trim();
-      const sheet = (document.getElementById("sheet").value || "Planilha").slice(0,31);
-      const filename = (document.getElementById("filename").value || "planilha.xlsx").replace(/[^a-zA-Z0-9_\-.]/g,"_");
-      if (!raw) { msg("Cole os dados primeiro.", false); return; }
-
-      try {
-        const arr = parseInput(raw);
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(arr);
-        XLSX.utils.book_append_sheet(wb, ws, sheet);
-        XLSX.writeFile(wb, filename);
-        msg("Arquivo gerado com sucesso ✔");
-      } catch (e) {
-        msg(e.message, false);
+    function gerar(){
+      const txt=document.getElementById('data').value.trim();
+      if(!txt){msg('Cole dados CSV ou JSON primeiro.',false);return;}
+      let dados;
+      try{
+        dados=JSON.parse(txt);
+      }catch(e){
+        const linhas=txt.split(/\r?\n/).filter(x=>x.trim());
+        const cab=linhas[0].split(',');
+        dados=linhas.slice(1).map(l=>{
+          const col=l.split(',');
+          let obj={};
+          cab.forEach((c,i)=>obj[c]=col[i]||'');
+          return obj;
+        });
       }
-    };
+      try{
+        const wb=XLSX.utils.book_new();
+        const ws=XLSX.utils.json_to_sheet(dados);
+        XLSX.utils.book_append_sheet(wb,ws,document.getElementById('sheet').value||'Planilha');
+        XLSX.writeFile(wb,document.getElementById('filename').value||'planilha.xlsx');
+        msg('✅ Planilha gerada com sucesso!');
+      }catch(e){
+        msg('Erro: '+e.message,false);
+      }
+    }
   </script>
 </body>
 </html>
