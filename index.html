@@ -1,192 +1,65 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gerar Planilha – Excel (.xlsx) ou CSV</title>
-  <style>
-    :root { --bg:#0f172a; --fg:#e5e7eb; --muted:#94a3b8; --brand:#2563eb; --ok:#22c55e; --err:#ef4444; }
-    *{box-sizing:border-box} body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0}
-    .wrap{max-width:980px;margin:40px auto;padding:0 20px}
-    .card{background:#0b1220;border:1px solid #1f2a44;border-radius:16px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,.25)}
-    h1{margin:0 0 8px;font-size:1.6rem;color:#93c5fd}
-    p.muted{color:var(--muted);margin:0 0 14px}
-    label{color:var(--muted);font-weight:600}
-    textarea{width:100%;min-height:260px;border-radius:12px;border:1px solid #1f2a44;background:#0a1020;color:var(--fg);padding:12px;resize:vertical;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-    .row input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #1f2a44;background:#0a1020;color:var(--fg)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    button{padding:10px 16px;border-radius:10px;border:1px solid #1f2a44;background:#111a33;color:var(--fg);cursor:pointer}
-    button.primary{background:var(--brand);border-color:var(--brand)}
-    button.success{background:#15803d;border-color:#15803d}
-    button.warn{background:#334155;border-color:#334155}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .status{margin-top:10px}
-    .ok{color:var(--ok);font-weight:700}
-    .err{color:var(--err);font-weight:700}
-    .tip{background:#0a1329;border:1px dashed #1f2a44;border-radius:12px;padding:12px;margin-top:12px;color:var(--muted)}
-    footer{margin-top:18px;color:var(--muted);font-size:.9rem}
-    a{color:#93c5fd}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gerar Planilha CLCB / AVCB - Eng. Wellington Valente</title>
+
+<!-- Estilo moderno -->
+<style>
+  body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #b71c1c, #212121);
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+  }
+  h1 { margin: 0; font-size: 28px; }
+  h2 { font-weight: normal; }
+  section {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    margin: 40px auto;
+    padding: 20px;
+    max-width: 700px;
+  }
+  a.button {
+    background: #ffc107;
+    color: #000;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 10px;
+    font-weight: 600;
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Gerar Planilha Excel (.xlsx) ou CSV</h1>
-      <p class="muted">Cole abaixo o conteúdo <b>CSV</b> ou <b>JSON</b> fornecido pelo seu GPT. Tudo acontece no seu navegador — nenhum dado é enviado a servidores.</p>
+  <header>
+    <h1>Gerar Planilha CLCB / AVCB</h1>
+    <h2>Ferramenta gratuita do Eng. Wellington G. Valente – CREA-MG 160.396/D</h2>
+  </header>
 
-      <label for="data">Dados (CSV ou JSON)</label>
-      <textarea id="data" placeholder='Exemplo CSV:
-empresa,cidade,ocupacao
-Loja Exemplo,BH,Comercial
-Mercado Central,BH,Serviços
+  <section>
+    <p>Converta CSV ou JSON em planilha Excel (.xlsx) de forma simples e segura, direto no seu navegador.</p>
+    <a class="button" href="./app.html">Abrir Gerador de Planilhas</a>
+    <a class="button" href="https://chatgpt.com/g/g-6885782abb8881919a27cd3bae30dee0-prevencao-e-combate-a-incendios-mg" target="_blank">Acessar GPT Prevenção MG</a>
+  </section>
 
-Exemplo JSON:
-[{"empresa":"Loja Exemplo","cidade":"BH","ocupacao":"Comercial"}]
-'></textarea>
-
-      <div class="row">
-        <div>
-          <label for="sheet">Nome da aba</label>
-          <input id="sheet" value="Planilha" />
-        </div>
-        <div>
-          <label for="filename">Nome do arquivo</label>
-          <input id="filename" value="planilha_cbmmg.xlsx" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="btn-xlsx" disabled>Gerar .xlsx (recomendado)</button>
-        <button class="success" id="btn-csv">Baixar .csv (alternativo)</button>
-        <button class="warn" id="sampleCsv">Exemplo CSV</button>
-        <button class="warn" id="sampleJson">Exemplo JSON</button>
-        <button id="clear">Limpar</button>
-      </div>
-
-      <div id="status" class="status"></div>
-
-      <div class="tip">
-        <b>Sobre o modo .xlsx:</b> para funcionar <u>sem erros</u> em qualquer navegador, esta página tenta usar uma cópia <i>local</i> da biblioteca <code>xlsx.full.min.js</code>.
-        Se ela não estiver presente, o botão .xlsx fica desativado e você pode usar o botão <b>Baixar .csv</b> (Excel abre normalmente).
-        Para habilitar o .xlsx, basta fazer o upload do arquivo <code>xlsx.full.min.js</code> na mesma pasta deste <code>index.html</code>.
-        Instruções no README do repositório.
-      </div>
-
-      <footer>Ferramenta de apoio (client-side). Código livre para uso.</footer>
-    </div>
-  </div>
-
-  <!-- Loader dinâmico: tenta carregar a biblioteca XLSX localmente; se falhar, tenta CDNs; se ainda assim falhar, mantém fallback CSV -->
-  <script>
-    const statusEl = document.getElementById("status");
-    const btnXlsx = document.getElementById("btn-xlsx");
-    const btnCsv  = document.getElementById("btn-csv");
-
-    function setStatus(msg, cls){ statusEl.className = "status " + (cls||""); statusEl.textContent = msg; }
-
-    function tryLoadScript(src){
-      return new Promise((resolve,reject)=>{
-        const s=document.createElement("script"); s.src=src; s.async=true;
-        s.onload=()=>resolve(src); s.onerror=()=>reject(new Error("Falha ao carregar "+src));
-        document.head.appendChild(s);
-      });
-    }
-
-    async function ensureXLSX(){
-      if (window.XLSX){ return true; }
-      // 1) tenta local (mesmo diretório do index.html)
-      try { await tryLoadScript("./xlsx.full.min.js"); } catch(_) {}
-      if (window.XLSX){ return true; }
-      // 2) tenta CDN jsDelivr
-      try { await tryLoadScript("https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js"); } catch(_) {}
-      if (window.XLSX){ return true; }
-      // 3) tenta CDN unpkg
-      try { await tryLoadScript("https://unpkg.com/xlsx@0.20.2/dist/xlsx.full.min.js"); } catch(_) {}
-      return !!window.XLSX;
-    }
-
-    (async () => {
-      const ok = await ensureXLSX();
-      if (ok){
-        btnXlsx.disabled = false;
-        setStatus("✅ Modo .xlsx habilitado.", "ok");
-      } else {
-        btnXlsx.disabled = true;
-        setStatus("ℹ️ Biblioteca XLSX não encontrada. Use o botão CSV ou suba o arquivo xlsx.full.min.js para habilitar .xlsx.", "err");
-      }
-    })();
-
-    function msg(text, ok=true){ setStatus(text, ok? "ok" : "err"); }
-
-    function parseInput(txt) {
-      // Tenta JSON
-      try { const obj = JSON.parse(txt); if (Array.isArray(obj)) return obj; } catch(_){}
-      // CSV simples
-      const lines = txt.trim().split(/\r?\n/).filter(Boolean);
-      if (lines.length < 2) throw new Error("Dados inválidos. Informe JSON (lista de objetos) ou CSV (com cabeçalho).");
-      const headers = lines[0].split(",").map(h => h.trim());
-      return lines.slice(1).map(line => {
-        const cols = line.split(",");
-        const o = {};
-        headers.forEach((h,i)=> o[h] = (cols[i] ?? "").trim());
-        return o;
-      });
-    }
-
-    document.getElementById("sampleCsv").onclick = () => {
-      document.getElementById("data").value = "empresa,cidade,ocupacao\nLoja Exemplo,BH,Comercial\nMercado Central,BH,Serviços";
-      msg("Exemplo CSV carregado.");
-    };
-    document.getElementById("sampleJson").onclick = () => {
-      document.getElementById("data").value = JSON.stringify([{empresa:"Loja Exemplo",cidade:"BH",ocupacao:"Comercial"}], null, 2);
-      msg("Exemplo JSON carregado.");
-    };
-    document.getElementById("clear").onclick = () => {
-      document.getElementById("data").value = "";
-      setStatus("");
-    };
-
-    // XLSX
-    btnXlsx.onclick = () => {
-      const raw = document.getElementById("data").value.trim();
-      const sheet = (document.getElementById("sheet").value || "Planilha").slice(0,31);
-      const file  = (document.getElementById("filename").value || "planilha.xlsx").replace(/[^a-zA-Z0-9_\-.]/g,"_");
-      if (!raw){ msg("Cole dados primeiro.", false); return; }
-      try{
-        const arr = parseInput(raw);
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(arr);
-        XLSX.utils.book_append_sheet(wb, ws, sheet);
-        XLSX.writeFile(wb, file);
-        msg("Arquivo .xlsx gerado com sucesso ✔");
-      } catch(e){ msg(e.message, false); }
-    };
-
-    // CSV fallback
-    btnCsv.onclick = () => {
-      const raw = document.getElementById("data").value.trim();
-      const fileCsv = (document.getElementById("filename").value || "planilha.csv").replace(/\.xlsx$/i, ".csv");
-      if (!raw){ msg("Cole dados primeiro.", false); return; }
-      try{
-        // Se já for JSON, converte para CSV
-        let csv = raw;
-        try {
-          const arr = JSON.parse(raw);
-          if (Array.isArray(arr) && arr.length){
-            const headers = Object.keys(arr[0]);
-            const lines = [headers.join(",")].concat(arr.map(o => headers.map(h => (o[h]??"").toString().replace(/,/g," ")).join(",")));
-            csv = lines.join("\n");
-          }
-        } catch(_) {}
-        const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = fileCsv;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        msg("Arquivo .csv baixado com sucesso ✔");
-      } catch(e){ msg(e.message, false); }
-    };
-  </script>
+  <footer>
+    © 2025 – Eng. Wellington G. Valente | Segurança contra Incêndios em MG
+  </footer>
 </body>
 </html>
